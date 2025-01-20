@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
+import {console} from "forge-std/console.sol";
+
 interface IOrcaCoin {
     function mint(address to, uint256 amount) external;
 }
 
 contract Staking {
-    mapping(address => uint256) private tokenStaked;
-    mapping(address => uint256) private unclaimedRewards;
-    mapping(address => uint256) private lastUpdateTime;
+    mapping(address => uint256) public tokenStaked;
+    mapping(address => uint256) public unclaimedRewards;
+    mapping(address => uint256) public lastUpdateTime;
 
     IOrcaCoin public orcaTokenAddress;
 
@@ -55,9 +57,10 @@ contract Staking {
 
     function getRewards() public view returns (uint256) {
         uint256 timeDiff = block.timestamp - lastUpdateTime[msg.sender];
-        // if (timeDiff == 0) {
-        //     return
-        // }
-        return (unclaimedRewards[msg.sender] + ((timeDiff) * REWARD_PER_SEC_PER_ETH));
+        return (unclaimedRewards[msg.sender] + ((timeDiff) * REWARD_PER_SEC_PER_ETH * tokenStaked[msg.sender]));
+    }
+
+    function getTokenStaked() public view returns (uint256) {
+        return tokenStaked[msg.sender];
     }
 }
